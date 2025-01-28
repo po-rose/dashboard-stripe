@@ -13,7 +13,7 @@ export default function Dashboard() {
   const [selectedLists, setSelectedLists] = useState( [0, 0, 0, 0, 0, 0, 0 ] )
   const [isLogined, setIsLogined] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
-  const [cardNumber, setCardNumber] = useState('')
+  const [payAmount, setPayAmount] = useState(0)
   const { open, close } = useAppKit();
 
   const [user, loading, error] = useAuthState(auth);
@@ -24,7 +24,6 @@ export default function Dashboard() {
 
     const handleLoginWithGmail = () => {
         signInWithGoogle()
-        // alert(JSON.stringify(user)); 
     }
 
     const handleBuyNow = () => {}
@@ -34,34 +33,36 @@ export default function Dashboard() {
     }
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const cardElement = elements.getElement(CardElement);
-        const { clientSecret } = await fetch('https://your-wordpress-site.com/wp-json/your-plugin/v1/create-payment-intent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: 1000, currency: 'usd' }) // Adjust amount and currency as needed
-        }).then((res) => res.json());
+        
+        // const cardElement = elements.getElement(CardElement);
+        // const { clientSecret } = await fetch('https://token.vooglue.io/wp-json/your-plugin/v1/create-payment-intent', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ amount: payAmount, currency: 'usd' }) // Adjust amount and currency as needed
+        // }).then((res) => res.json());
 
-        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-            card: cardElement,
-            billing_details: {
-                name: 'Customer Name',
-            },
-            },
-        });
+        // const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        //     payment_method: {
+        //     card: cardElement,
+        //     billing_details: {
+        //         name: 'Customer Name',
+        //     },
+        //     },
+        // });
 
-        if (error) {
-            document.getElementById('payment-error').textContent = error.message;
-        } else if (paymentIntent.status === 'succeeded') {
-            alert('Payment succeeded!');
-        }
+        // if (error) {
+        //     document.getElementById('payment-error').textContent = error.message;
+        // } else if (paymentIntent.status === 'succeeded') {
+        //     alert('Payment succeeded!');
+        // }
+        alert(payAmount);
     }
 
     useEffect(() => {
         alert(JSON.stringify(user));
         if (user) {
             setIsLogined(true);
-            // alert(JSON.stringify(user));
+            alert(JSON.stringify(user));
         }
         else setIsLogined(false);
     }, [user]);
@@ -138,23 +139,12 @@ export default function Dashboard() {
                             lastSelectedItem==6 && 
                             <div className=" flex-1 my-[10px] mx-2 p-[2px] rounded-full bg-[#2f2f2f] flex items-center hover:bg-[conic-gradient(from_225deg_at_50%_50%,_#ffc876,_#79fff7,_#9f53ff,_#ff98e2,_#ffc876)]">
                                 <div className="flex items-center gap-3 px-4 py-[20px] rounded-full bg-[#333333] w-full">
-                                    {/* <input type="text" className="bg-transparent w-full focus:outline-none" value={cardNumber} placeholder="Card Number" onChange={(e)=>setCardNumber(e.target.value)}/>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-6 h-6 rounded-full">
-                                            <img 
-                                                src="/assets/icons/CARD.png"
-                                                alt="token"
-                                                className="w-7 h-7"
-                                            />
-                                        </div>
-                                    </div> 
-                                    <CardElement className="w-full bg-transparent"/>*/}
-                                        <form onSubmit={handleSubmit}  className="w-full bg-transparent">
-                                          <CardElement className="w-full bg-transparent"/>
-                                          <button type="submit" disabled={!stripe} className="hidden" ref={payRef}>
-                                            Pay
-                                          </button> 
-                                        </form>
+                                    <form onSubmit={handleSubmit}  className="w-full bg-transparent">
+                                        <CardElement className="w-full bg-transparent"/>
+                                        <button type="submit" disabled={!stripe} className="hidden" ref={payRef}>
+                                        Pay
+                                        </button> 
+                                    </form>
                                 </div>
                             </div>
                         }
@@ -168,7 +158,7 @@ export default function Dashboard() {
                     <div className="flex gap-4">
                         <div className="flex-1 p-[2px] rounded-full bg-[#2f2f2f] flex items-center hover:bg-[conic-gradient(from_225deg_at_50%_50%,_#ffc876,_#79fff7,_#9f53ff,_#ff98e2,_#ffc876)]">
                             <div className="flex items-center gap-3 p-4 rounded-full text-white bg-black w-full">
-                                <input type="number" defaultValue="0" className="bg-transparent w-full focus:outline-none" />
+                                 <input type="number" defaultValue="0" value={payAmount} onChange={(e)=>setPayAmount(e.target.value)} className="bg-transparent w-full focus:outline-none" />
                                 <div className="flex items-center gap-2">
                                     <div className="w-6 h-6 rounded-full">
                                     <img 
