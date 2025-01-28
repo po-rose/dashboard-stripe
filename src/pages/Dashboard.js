@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import PaymentMethodSelector from "../components/PaymentMethodSelector"
 import SelectItems from "../utils/SelectItems"
 import { useAppKit } from '@reown/appkit/react'
 import { auth, signInWithGoogle, logout } from "../firebase.js";
 import { useAuthState } from "react-firebase-hooks/auth";
 import "react-toastify/dist/ReactToastify.css";
-import { CardElement, useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 export default function Dashboard() {
   const [lastSelectedItem, setLastSelectedItem] = useState(0)
@@ -20,6 +20,8 @@ export default function Dashboard() {
   const stripe = useStripe();
   const elements = useElements();
 
+  const payRef = useRef(null);
+
     const handleLoginWithGmail = () => {
         signInWithGoogle()
         // alert(JSON.stringify(user)); 
@@ -27,30 +29,36 @@ export default function Dashboard() {
 
     const handleBuyNow = () => {}
 
-    const handleBuyNowWithCard = async (event) => {
-        event.preventDefault();
-
-        if (!stripe || !elements) {
-            return; // Stripe.js has not loaded yet.
-        }
-
+    const handleBuyNowWithCard = () => {
+        payRef.current.click();
+    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         const cardElement = elements.getElement(CardElement);
+        const { clientSecret } = await fetch('https://your-wordpress-site.com/wp-json/your-plugin/v1/create-payment-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: 1000, currency: 'usd' }) // Adjust amount and currency as needed
+        }).then((res) => res.json());
 
-        // Create a payment method
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: "card",
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
             card: cardElement,
+            billing_details: {
+                name: 'Customer Name',
+            },
+            },
         });
 
         if (error) {
-            console.error(error);
-        } else {
-            console.log("PaymentMethod:", paymentMethod);
-            // Send paymentMethod.id to your server for processing
+            document.getElementById('payment-error').textContent = error.message;
+        } else if (paymentIntent.status === 'succeeded') {
+            alert('Payment succeeded!');
         }
     }
 
     useEffect(() => {
+        alert(JSON.stringify(user));
         if (user) {
             setIsLogined(true);
             // alert(JSON.stringify(user));
@@ -139,14 +147,14 @@ export default function Dashboard() {
                                                 className="w-7 h-7"
                                             />
                                         </div>
-                                    </div> */}
-                                    <CardElement className="w-full bg-transparent"/>
-                                        {/* <form onSubmit={handleBuyNowWithCard}  className="w-full bg-transparent">
-                                          <CardElement />
-                                          <button type="submit" disabled={!stripe}>
+                                    </div> 
+                                    <CardElement className="w-full bg-transparent"/>*/}
+                                        <form onSubmit={handleSubmit}  className="w-full bg-transparent">
+                                          <CardElement className="w-full bg-transparent"/>
+                                          <button type="submit" disabled={!stripe} className="hidden" ref={payRef}>
                                             Pay
                                           </button> 
-                                        </form> */}
+                                        </form>
                                 </div>
                             </div>
                         }
@@ -194,7 +202,7 @@ export default function Dashboard() {
                     <div className="p-[2px] w-1/3 rounded-full bg-[conic-gradient(from_225deg_at_50%_50%,_#ffc876,_#79fff7,_#9f53ff,_#ff98e2,_#ffc876)] flex justify-center">
                         <button 
                         type="submit"
-                        className="flex items-center w-full gap-3 px-4 py-2.5 rounded-full text-white bg-[#181818] hover:bg-[rgba(0,0,0,0)] hover:text-[#2f2f2f] text-xl justify-center" onClick={isLogined? handleBuyNowWithCard : handleLoginWithGmail} >                  
+                        className="flex items-center w-full gap-3 px-4 py-2.5 rounded-full text-white bg-[#181818] hover:bg-[rgba(0,0,0,0)] hover:text-[#2f2f2f] text-xl justify-center" onClick={isLogined? handleBuyNowWithCard : handleLoginWithGmail}>                  
                             {isLogined? "Buy Now" : "Login With Gmail" }      
                         </button>
                     </div>
