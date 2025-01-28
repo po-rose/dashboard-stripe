@@ -65,7 +65,7 @@ export default function Dashboard() {
             alert(JSON.stringify(user));
         }
         else setIsLogined(false);
-    }, [user]);
+    });
 
     
 
