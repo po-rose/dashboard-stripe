@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import PaymentMethodSelector from "../components/PaymentMethodSelector.js
+import PaymentMethodSelector from "../components/PaymentMethodSelector"
 import SelectItems from "../utils/SelectItems.js"
 import { useAppKit } from '@reown/appkit/react'
 import { auth, signInWithGoogle, logout } from "../firebase.js";
