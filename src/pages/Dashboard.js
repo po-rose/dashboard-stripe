@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
-import PaymentMethodSelector from "../components/PaymentMethodSelector"
-import SelectItems from "../utils/SelectItems"
+import PaymentMethodSelector from "../components/PaymentMethodSelector.js
+import SelectItems from "../utils/SelectItems.js"
 import { useAppKit } from '@reown/appkit/react'
 import { auth, signInWithGoogle, logout } from "../firebase.js";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -34,28 +34,28 @@ export default function Dashboard() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // const cardElement = elements.getElement(CardElement);
-        // const { clientSecret } = await fetch('https://token.vooglue.io/wp-json/your-plugin/v1/create-payment-intent', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ amount: payAmount, currency: 'usd' }) // Adjust amount and currency as needed
-        // }).then((res) => res.json());
+        const cardElement = elements.getElement(CardElement);
+        const { clientSecret } = await fetch('https://token.vooglue.io/wp-json/your-plugin/v1/create-payment-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: payAmount, currency: 'usd' }) // Adjust amount and currency as needed
+        }).then((res) => res.json());
 
-        // const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        //     payment_method: {
-        //     card: cardElement,
-        //     billing_details: {
-        //         name: 'Customer Name',
-        //     },
-        //     },
-        // });
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+            card: cardElement,
+            billing_details: {
+                name: 'Customer Name',
+            },
+            },
+        });
 
-        // if (error) {
-        //     document.getElementById('payment-error').textContent = error.message;
-        // } else if (paymentIntent.status === 'succeeded') {
-        //     alert('Payment succeeded!');
-        // }
-        alert(payAmount);
+        if (error) {
+            document.getElementById('payment-error').textContent = error.message;
+        } else if (paymentIntent.status === 'succeeded') {
+            alert('Payment succeeded!');
+        }
+        // alert(payAmount);
     }
 
     useEffect(() => {
